@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 
-{% block Heading %}Login{% endblock %}
+{% block pageheading %}Sign up{% endblock %}
 
 {% block main %}
-    <form class="myform" method="POST">
+
+<form class="dataForm" method="POST">
     <div class="form-group">
-        <div class="form-label">First Name</div>
-        <div class="form-element"><input type="text" name="First Name" id="First Name" required></div>
+            <div class="form-label">First Name:</div>
+            <div class="form-element"><input type="text" name="fname" id="fname" required></div>
     </div>
     <div class="form-group">
-        <div class="form-label">Last Name</div>
-        <div class="form-element"><input type="text" name="Last Name" id="Last Name" required></div>
+        <div class="form-label">Last Name:</div>
+        <div class="form-element"><input type="text" name="lname" id="lname" required></div>
     </div>
     <div class="form-group">
         <div class="form-label">Email:</div>
@@ -20,6 +21,11 @@
         <div class="form-label">Password:</div>
         <div class="form-element"><input type="password" name="password" id="password" required></div>
     </div>
+    <div class="form-group">
+        <div class="form-label">Confirm Password:</div>
+        <div class="form-element"><input type="password" name="cpassword" id="cpassword" required></div>
+    </div>
+    <div class="error">{{ error }}</div>
     <div class="form-group">
         <div class="form-label"></div>
         <div class="form-element"><input type="submit" value="Sign Up"></div>

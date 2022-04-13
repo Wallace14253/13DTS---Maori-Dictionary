@@ -1,11 +1,9 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Maōri Dictionary | Home{% endblock %}
-
-{% block heading %}Maōri - English Dictionary{% endblock %}
+{% block heading %} {{ categories[category_id - 1][1] }}{% endblock %}
 
 {% block main %}
-<table>
+    <table>
     <thead>
         <tr>
             <td>Maori</td>
@@ -16,6 +14,7 @@
     </thead>
     <tbody>
         {% for word in words %}
+            {% if word[0] == category_id %}
             <tr>
                 <td>{{ word[1] }}</td>
                 <td>{{ word[2] }}</td>
@@ -23,6 +22,7 @@
                 <td>{{ word[4] }}</td>
                 <td><img src="static/images/{{ word[5] }}.jpg"></td>
             </tr>
+            {% endif %}
         {% endfor %}
     </tbody>
 </table>
