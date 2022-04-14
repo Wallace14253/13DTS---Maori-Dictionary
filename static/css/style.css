@@ -67,6 +67,10 @@ img {
     margin-left: 0.5rem;
 }
 
+.dataForm input[type='radio']{
+    width: 5%;
+}
+
 .error {
     color: #f00;
 }
