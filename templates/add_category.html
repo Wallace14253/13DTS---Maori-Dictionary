@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Maōri Dictionary | Home{% endblock %}
+
+{% block heading %}Add Category{% endblock %}
+
+{% block main %}
+<form class="dataForm" method="POST">
+    <div class="form-group">
+        <div class="form-label">Category Name</div>
+        <div class="form-element"><input type="text" name="category" id="category" required></div>
+    </div>
+    <div class="form-group">
+        <div class="form-label"></div>
+        <div class="form-element"><input type="submit" value="Add Category"></div>
+    </div>
+    </form>
+
+{% endblock %}

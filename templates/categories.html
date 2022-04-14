@@ -4,27 +4,50 @@
 
 {% block main %}
     <table>
-    <thead>
-        <tr>
-            <td>Maori</td>
-            <td>English</td>
-            <td>Description</td>
-            <td>Level</td>
-        </tr>
-    </thead>
-    <tbody>
-        {% for word in words %}
-            {% if word[0] == category_id %}
+        <thead>
             <tr>
-                <td>{{ word[1] }}</td>
-                <td>{{ word[2] }}</td>
-                <td>{{ word[3] }}</td>
-                <td>{{ word[4] }}</td>
-                <td><img src="static/images/{{ word[5] }}.jpg"></td>
+                <td>Maori</td>
+                <td>English</td>
+                <td>Description</td>
+                <td>Level</td>
             </tr>
-            {% endif %}
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for word in words %}
+                {% if word[0] == category_id %}
+                <tr>
+                    <td>{{ word[1] }}</td>
+                    <td>{{ word[2] }}</td>
+                    <td>{{ word[3] }}</td>
+                    <td>{{ word[4] }}</td>
+                    <td><img src="static/images/{{ word[5] }}.jpg"></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form class="dataForm" method="POST">
+    <div><p>Add a word</p></div>
+    <div class="form-group">
+        <div class="form-label">Maori Word</div>
+        <div class="form-element"><input type="text" name="Maori_word" id="Maori_word" required></div>
+    </div>
+    <div class="form-group">
+        <div class="form-label">English Translation</div>
+        <div class="form-element"><input type="text" name="English_translation" id="English_translation" required></div>
+    </div>
+    <div class="form-group">
+        <div class="form-label">Year Level</div>
+            {% for i in range(10) %}
+                <input type="radio" id="{{ i + 1 }}" name="Level" value="{{ i + 1 }}">
+                <label for="{{ i + 1 }}">{{ i + 1 }}</label>
+            {% endfor %}
+
+    </div>
+    <div class="form-group">
+        <div class="form-element"><input type="submit" value="Add Word"></div>
+    </div>
+    </form>
 
 {% endblock %}
