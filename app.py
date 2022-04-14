@@ -65,7 +65,30 @@ def categories_page(category_id):
     cur.execute(query)
     word_data = cur.fetchall()
 
-    return render_template("categories.html", words=word_data, categories=categories(), category_id=int(category_id))
+    if is_logged_in():
+        if request.method == 'POST':
+            category = request.form.get('category').title().strip()
+            print(category)
+            con = create_connection(DATABASE)
+            query = "INSERT INTO Categories (id, Category_Name) VALUES(NULL, ?)"
+
+            cur = con.cursor()
+            try:
+                cur.execute(query, (category,))
+            except sqlite3.IntegrityError:
+                return redirect('/?error=category+already+exists')
+            con.commit()
+            con.close()
+
+            return redirect("/")
+
+        error = request.args.get("error")
+        if error == None:
+            error = ""
+
+        return render_template('add_category.html', logged_in=is_logged_in(), error=error, categories=categories())
+
+    return render_template("categories.html", words=word_data, categories=categories(), category_id=int(category_id), logged_in=is_logged_in())
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -145,12 +168,40 @@ def signup_page():
     return render_template("Signup.html", error=error, logged_in=is_logged_in(), categories=categories())
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST', 'GET'])
 def logout_page():
     print(list(session.keys()))
     [session.pop(key) for key in list(session.keys())]
     print(list(session.keys()))
     return redirect('/?message=see+you+next+time!')
+
+
+@app.route('/add_category', methods=['POST', 'GET'])
+def add_category_page():
+    if request.method == 'POST':
+        category = request.form.get('category').title().strip()
+        print(category)
+        con = create_connection(DATABASE)
+        query = "INSERT INTO Categories (id, Category_Name) VALUES(NULL, ?)"
+
+        cur = con.cursor()
+        try:
+            cur.execute(query,  (category, ))
+        except sqlite3.IntegrityError:
+            return redirect('/?error=category+already+exists')
+        con.commit()
+        con.close()
+
+        return redirect("/")
+
+    error = request.args.get("error")
+    if error == None:
+        error = ""
+
+
+
+    return render_template('add_category.html', logged_in=is_logged_in(), error=error, categories=categories())
+
 
 
 if __name__ == '__main__':

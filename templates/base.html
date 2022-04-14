@@ -28,7 +28,8 @@
                 {% endfor %}
                 <li><p>-----------</p></li>
                 {% if logged_in %}
-                <a href="/logout">logout</a>
+                    <li><a href="/add_category">Add Category</a></li>
+                    <li><a href="/logout">logout</a></li>
                 {% else %}
                 <a href="/login">login</a>
                 {% endif %}
