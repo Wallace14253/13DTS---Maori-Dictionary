@@ -3,6 +3,9 @@
 {% block heading %} {{ categories[category_id - 1][1] }}{% endblock %}
 
 {% block main %}
+    {% if logged_in %}
+    <a href="/confirm/{{ category_id }}">Remove Category</a>
+    {% endif %}
     <table>
         <thead>
             <tr>
@@ -26,7 +29,7 @@
             {% endfor %}
         </tbody>
     </table>
-
+{% if logged_in %}
     <form class="dataForm" method="POST">
     <div><p>Add a word</p></div>
     <div class="form-group">
@@ -52,5 +55,6 @@
         <div class="form-element"><input type="submit" value="Add Word"></div>
     </div>
     </form>
+    {% endif %}
 
 {% endblock %}

@@ -57,7 +57,7 @@ def home_page():
     return render_template("Home.html", logged_in=is_logged_in(), words=word_data, categories=categories())
 
 
-@app.route('/categories/<category_id>')
+@app.route('/categories/<category_id>', methods=['POST', 'GET'])
 def categories_page(category_id):
     query = "SELECT category_id, Maori, English, Description, Level, image FROM Dictionary"
     con = create_connection(DATABASE)
@@ -65,28 +65,28 @@ def categories_page(category_id):
     cur.execute(query)
     word_data = cur.fetchall()
 
+
     if is_logged_in():
         if request.method == 'POST':
-            category = request.form.get('category').title().strip()
-            print(category)
+            Maori = request.form.get('Maori_word').title().strip()
+            English = request.form.get('English_translation').title().strip()
+            Level = request.form.get('Level')
+            Description = request.form.get('Description')
+            Date_Added = datetime.now()
             con = create_connection(DATABASE)
-            query = "INSERT INTO Categories (id, Category_Name) VALUES(NULL, ?)"
+            query = "INSERT INTO dictionary (id, Maori, English, Description, Level, Date_Added, Category_id, image) VALUES(NULL, ?, ?, ?, ?, ?, ?, ?)"
 
             cur = con.cursor()
             try:
-                cur.execute(query, (category,))
+                cur.execute(query, (Maori, English, Description, Level, Date_Added, category_id, English))
             except sqlite3.IntegrityError:
                 return redirect('/?error=category+already+exists')
             con.commit()
             con.close()
 
-            return redirect("/")
-
         error = request.args.get("error")
         if error == None:
             error = ""
-
-        return render_template('add_category.html', logged_in=is_logged_in(), error=error, categories=categories())
 
     return render_template("categories.html", words=word_data, categories=categories(), category_id=int(category_id), logged_in=is_logged_in())
 
@@ -178,6 +178,8 @@ def logout_page():
 
 @app.route('/add_category', methods=['POST', 'GET'])
 def add_category_page():
+    if not is_logged_in():
+        return redirect('/')
     if request.method == 'POST':
         category = request.form.get('category').title().strip()
         print(category)
@@ -197,10 +199,25 @@ def add_category_page():
     error = request.args.get("error")
     if error == None:
         error = ""
+    return render_template('add_category.html', categories=categories(), logged_in=is_logged_in())
 
 
+@app.route('/confirm/<category>')
+def confirm_page(category):
+    return render_template('confirm.html', category_id=int(category), categories=categories())
 
-    return render_template('add_category.html', logged_in=is_logged_in(), error=error, categories=categories())
+@app.route('/remove_category/<category>')
+def remove_category_page(category):
+    query = "DELETE FROM Dictionary WHERE Category_id=?"
+    con = create_connection(DATABASE)
+    cur = con.cursor()
+    cur.execute(query, (category, ))
+    query="DELETE FROM categories WHERE id=?"
+    cur.execute(query, (category,))
+    con.commit()
+    con.close()
+
+    return redirect('/')
 
 
 
