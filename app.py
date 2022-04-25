@@ -99,6 +99,26 @@ def word_page(word):
     return render_template('word.html', words=word_data, word_id=int(word), logged_in=is_logged_in(), categories=categories(), user_data=user_data)
 
 
+@app.route('/confirm_word/<word>')
+def confirm_word_page(word):
+    query = "SELECT * FROM Dictionary"
+    con = create_connection(DATABASE)
+    cur = con.cursor()
+    cur.execute(query)
+    word_data = cur.fetchall()
+    return render_template('confirm.html', word_id=int(word), categories=categories(), words=word_data)
+
+@app.route('/remove_word/<word>')
+def remove_word_page(word):
+    print(word)
+    query = "DELETE FROM Dictionary WHERE id=?"
+    con = create_connection(DATABASE)
+    cur = con.cursor()
+    cur.execute(query, (word,))
+    con.commit()
+    con.close()
+    return redirect('/')
+
 @app.route('/login', methods=['POST', 'GET'])
 def login_page():
     if is_logged_in():
