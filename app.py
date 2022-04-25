@@ -3,10 +3,6 @@ import sqlite3
 from sqlite3 import Error
 from flask_bcrypt import Bcrypt
 from datetime import datetime
-import smtplib, ssl
-from smtplib import SMTPAuthenticationError
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -59,12 +55,11 @@ def home_page():
 
 @app.route('/categories/<category_id>', methods=['POST', 'GET'])
 def categories_page(category_id):
-    query = "SELECT category_id, Maori, English, Description, Level, image FROM Dictionary"
+    query = "SELECT category_id, Maori, English, Description, Level, image, id FROM Dictionary"
     con = create_connection(DATABASE)
     cur = con.cursor()
     cur.execute(query)
     word_data = cur.fetchall()
-
 
     if is_logged_in():
         if request.method == 'POST':
@@ -89,6 +84,19 @@ def categories_page(category_id):
             error = ""
 
     return render_template("categories.html", words=word_data, categories=categories(), category_id=int(category_id), logged_in=is_logged_in())
+
+@app.route('/word/<word>')
+def word_page(word):
+    query = "SELECT * FROM Dictionary"
+    con = create_connection(DATABASE)
+    cur = con.cursor()
+    cur.execute(query)
+    word_data = cur.fetchall()
+    query = """SELECT id, First_name, Last_Name FROM Admin_Logins"""
+    cur.execute(query)
+    user_data = cur.fetchall()
+    con.close()
+    return render_template('word.html', words=word_data, word_id=int(word), logged_in=is_logged_in(), categories=categories(), user_data=user_data)
 
 
 @app.route('/login', methods=['POST', 'GET'])

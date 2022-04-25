@@ -5,6 +5,10 @@
 {% block heading %}Delete Category{% endblock %}
 
 {% block main %}
-    <p>Are you sure you want to delete {{ categories[category_id - 1][1] }} - <a href="/remove_category/{{ category_id }}">Yes</a>/<a href="/categories/{{ category_id }}">No</a></p>
+    {% for category in categories %}
+        {% if category[0] == category_id %}
+            <p>Are you sure you want to delete {{ category[1] }} - <a href="/remove_category/{{ category_id }}">Yes</a>/<a href="/categories/{{ category_id }}">No</a></p>
+        {% endif %}
+    {% endfor %}
 
 {% endblock %}

@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
-{% block heading %} {{ categories[category_id - 1][1] }}{% endblock %}
+{% block heading %}
+    {% for category in categories %}
+        {% if category[0] == category_id %}
+            {{ category[1] }}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
 
 {% block main %}
     {% if logged_in %}
@@ -19,7 +25,7 @@
             {% for word in words %}
                 {% if word[0] == category_id %}
                 <tr>
-                    <td>{{ word[1] }}</td>
+                    <td><a href="/word/{{ word[6] }}">{{ word[1] }}</a></td>
                     <td>{{ word[2] }}</td>
                     <td>{{ word[3] }}</td>
                     <td>{{ word[4] }}</td>
