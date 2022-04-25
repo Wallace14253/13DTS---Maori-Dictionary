@@ -68,12 +68,14 @@ def categories_page(category_id):
             Level = request.form.get('Level')
             Description = request.form.get('Description')
             Date_Added = datetime.now()
+            login_id = session["login_id"]
+            image = 'noimage.png'
             con = create_connection(DATABASE)
-            query = "INSERT INTO dictionary (id, Maori, English, Description, Level, Date_Added, Category_id, image) VALUES(NULL, ?, ?, ?, ?, ?, ?, ?)"
+            query = "INSERT INTO dictionary (id, Maori, English, Description, Level, Date_Added, Login_id, Category_id, image) VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?)"
 
             cur = con.cursor()
             try:
-                cur.execute(query, (Maori, English, Description, Level, Date_Added, category_id, English))
+                cur.execute(query, (Maori, English, Description, Level, Date_Added, login_id, category_id, image))
             except sqlite3.IntegrityError:
                 return redirect('/?error=category+already+exists')
             con.commit()
@@ -102,8 +104,9 @@ def word_page(word):
         english = request.form["English_translation"].strip().lower()
         level = request.form["Level"]
         description = request.form["Description"].strip()
-        query = "UPDATE Dictionary SET Maori=?, English=?, Description=?, Level=? WHERE id=?"
-        cur.execute(query, (maori, english, description, level, int(word)))
+        login_id = session['login_id']
+        query = "UPDATE Dictionary SET Maori=?, English=?, Description=?, Level=?, Login_id=? WHERE id=?"
+        cur.execute(query, (maori, english, description, level, login_id, int(word)))
         con.commit()
     con.close()
     return render_template('word.html', words=word_data, word_id=int(word), logged_in=is_logged_in(), categories=categories(), user_data=user_data)
@@ -146,21 +149,16 @@ def login_page():
         print(user_data)
 
         try:
-            customerid = user_data[0][0]
-            firstname = user_data[0][1]
+            login_id = user_data[0][0]
             db_password = user_data[0][2]
         except IndexError:
             return redirect("/login?error=Email+or+password+incorrect")
 
-
         if not bcrypt.check_password_hash(db_password, password):
             return redirect(request.referrer + "?error=Email+invalid+or+password+incorrect")
 
-
-
+        session['login_id'] = login_id
         session['email'] = email
-        session['customerid'] = customerid
-        session['firstname'] = firstname
         print(session)
         return redirect('/')
 

@@ -15,7 +15,7 @@
                 <p><strong>Date Added:</strong> {{ word[5] }}</p>
                 {% for user in user_data %}
                     {% if user[0] == word[6] %}
-                        <p><strong>Edited By:</strong> {{ user[1] }} {{ user[2] }}</p>
+                        <p><strong>Last Edited By:</strong> {{ user[1] }} {{ user[2] }}</p>
                     {% endif %}
                 {% endfor %}
                 <img src="{{ word[8] }}">
