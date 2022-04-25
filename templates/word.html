@@ -18,7 +18,7 @@
                         <p><strong>Last Edited By:</strong> {{ user[1] }} {{ user[2] }}</p>
                     {% endif %}
                 {% endfor %}
-                <img src="{{ word[8] }}">
+                <img src="../static/images/{{ word[8] }}">
                 {% if logged_in %}
                     <form class="dataForm" method="POST">
                         <div><p>Edit Word</p></div>
