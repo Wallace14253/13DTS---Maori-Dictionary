@@ -5,7 +5,11 @@
 {% block main %}
     {% for word in words %}
             {% if word[0] == word_id %}
-                <h1>{{ word[1] }}({{ word[2] }}) - <a href="/confirm_word/{{ word_id }}">Remove</a></h1>
+                {% if logged_in %}
+                    <h1>{{ word[1] }}({{ word[2] }}) - <a href="/confirm_word/{{ word_id }}">Remove</a></h1>
+                {% else %}
+                    <h1>{{ word[1] }}({{ word[2] }})</h1>
+                {% endif %}
                 <p><strong>Definition:</strong> {{ word[3] }}</p>
                 <p><strong>Level:</strong> {{ word[4] }}</p>
                 <p><strong>Date Added:</strong> {{ word[5] }}</p>
