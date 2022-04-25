@@ -85,16 +85,26 @@ def categories_page(category_id):
 
     return render_template("categories.html", words=word_data, categories=categories(), category_id=int(category_id), logged_in=is_logged_in())
 
-@app.route('/word/<word>')
+@app.route('/word/<word>', methods=['POST', 'GET'])
 def word_page(word):
     query = "SELECT * FROM Dictionary"
     con = create_connection(DATABASE)
     cur = con.cursor()
     cur.execute(query)
     word_data = cur.fetchall()
-    query = """SELECT id, First_name, Last_Name FROM Admin_Logins"""
+    query = "SELECT id, First_name, Last_Name FROM Admin_Logins"
     cur.execute(query)
     user_data = cur.fetchall()
+
+    if request.method == "POST":
+        print(word)
+        maori = request.form["Maori_word"].strip().lower()
+        english = request.form["English_translation"].strip().lower()
+        level = request.form["Level"]
+        description = request.form["Description"].strip()
+        query = "UPDATE Dictionary SET Maori=?, English=?, Description=?, Level=? WHERE id=?"
+        cur.execute(query, (maori, english, description, level, int(word)))
+        con.commit()
     con.close()
     return render_template('word.html', words=word_data, word_id=int(word), logged_in=is_logged_in(), categories=categories(), user_data=user_data)
 
@@ -106,7 +116,7 @@ def confirm_word_page(word):
     cur = con.cursor()
     cur.execute(query)
     word_data = cur.fetchall()
-    return render_template('confirm.html', word_id=int(word), categories=categories(), words=word_data)
+    return render_template('confirm_word.html', word_id=int(word), categories=categories(), words=word_data)
 
 @app.route('/remove_word/<word>')
 def remove_word_page(word):

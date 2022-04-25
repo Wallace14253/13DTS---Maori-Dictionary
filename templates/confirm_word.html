@@ -2,12 +2,12 @@
 
 {% block title %}Maōri Dictionary | Home{% endblock %}
 
-{% block heading %}Delete Word{% endblock %}
+{% block heading %}Delete Category{% endblock %}
 
 {% block main %}
-    {% for category in categories %}
-        {% if category[0] == category_id %}
-            <p>Are you sure you want to delete {{ word[1] }}({{ word[2] }}) - <a href="/remove_word/{{ category_id }}">Yes</a>/<a href="/categories/{{ category_id }}">No</a></p>
+    {% for word in words %}
+        {% if word[0] == word_id %}
+            <p>Are you sure you want to delete {{ word[1] }} - <a href="/remove_word/{{ word_id }}">Yes</a>/<a href="/word/{{ word_id }}">No</a></p>
         {% endif %}
     {% endfor %}
 
