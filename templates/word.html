@@ -5,21 +5,35 @@
 {% block main %}
     {% for word in words %}
             {% if word[0] == word_id %}
-                {% if logged_in %}
+                {% if logged_in and not is_student %}
                     <h1>{{ word[1] }}({{ word[2] }}) - <a href="/confirm_word/{{ word_id }}">Remove</a></h1>
                 {% else %}
                     <h1>{{ word[1] }}({{ word[2] }})</h1>
                 {% endif %}
-                <p><strong>Definition:</strong> {{ word[3] }}</p>
-                <p><strong>Level:</strong> {{ word[4] }}</p>
-                <p><strong>Date Added:</strong> {{ word[5] }}</p>
-                {% for user in user_data %}
-                    {% if user[0] == word[6] %}
-                        <p><strong>Last Edited By:</strong> {{ user[1] }} {{ user[2] }}</p>
-                    {% endif %}
-                {% endfor %}
+                <table>
+                    <tr>
+                        <td class="left-table"><p><strong>Definition:</strong></p></td>
+                        <td>{{ word[3] }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left-table"><p><strong>Level:</strong></p></td>
+                        <td>{{ word[4] }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left-table"><p><strong>Date Added:</strong></p></td>
+                        <td>{{ word[5] }}</td>
+                    </tr>
+                    <tr>
+                        {% for user in user_data %}
+                            {% if user[0] == word[6] %}
+                               <td class="left-table"><p><strong>Last Edited By:</strong></p></td>
+                                <td>{{ user[1] }} {{ user[2] }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                </table>
                 <img src="../static/images/{{ word[8] }}">
-                {% if logged_in %}
+                {% if logged_in and not is_student %}
                     <form class="dataForm" method="POST">
                         <div><p>Edit Word</p></div>
                         <div class="form-group">

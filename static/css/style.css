@@ -86,12 +86,12 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
+thead, td {
     border: 1px solid #888;
     padding: 0.2rem;
     text-align: left;
 }
-th {
+thead {
     background-color: #000;
     color: #fff;
 }

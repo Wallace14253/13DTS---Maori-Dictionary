@@ -11,4 +11,33 @@
         {% endif %}
     {% endfor %}
 
+    <table>
+        <thead>
+            <tr>
+                <td>Maori</td>
+                <td>English</td>
+                <td>Description</td>
+                <td>Level</td>
+                <td>Image</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for word in words %}
+                {% if word[0] == category_id %}
+                <tr>
+                    <td><a href="/word/{{ word[6] }}">{{ word[1] }}</a></td>
+                    <td>{{ word[2] }}</td>
+                    <td>{{ word[3] }}</td>
+                    <td>{{ word[4] }}</td>
+                    <td><img src="../static/images/{{ word[5] }}"></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
+
+
+
+
+

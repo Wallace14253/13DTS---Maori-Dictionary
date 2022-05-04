@@ -22,26 +22,48 @@ def create_connection(db_file):
 
 def is_logged_in():
     if session.get("email") is None:
-        print("not logged in")
+        # print("not logged in")
         return False
     else:
-        print("logged in")
+        # print("logged in")
         return True
+
+def is_student():
+    if session.get("login_id") is None:
+        print("no email")
+        return False
+    else:
+        con = create_connection(DATABASE)
+        cur = con.cursor()
+        login_id = session['login_id']
+        query = "SELECT Admin FROM Admin_logins WHERE id = ?"
+        cur.execute(query, (login_id, ))
+        admin = cur.fetchall()
+        print(admin[0][0])
+        if admin[0][0] == "Student":
+            print("is student")
+            return True
+        else:
+            print("is Teacher")
+            return False
+
+
 
 
 def categories():
-    query = "SELECT id, Category_Name FROM Categories"
     con = create_connection(DATABASE)
     cur = con.cursor()
+    query = "SELECT id, Category_Name FROM Categories"
+
     cur.execute(query)
     category = cur.fetchall()
     con.close()
-    print(category)
+    # print(category)
     return category
 
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home_page():
     query = "SELECT id, Maori, English, Description, Level, image FROM Dictionary"
     con = create_connection(DATABASE)
@@ -50,7 +72,27 @@ def home_page():
     word_data = cur.fetchall()
     con.close()
 
-    return render_template("Home.html", logged_in=is_logged_in(), words=word_data, categories=categories())
+    if request.method == 'POST':
+        category = request.form.get('category').title().strip()
+        # print(category)
+        con = create_connection(DATABASE)
+        query = "INSERT INTO Categories (id, Category_Name) VALUES(NULL, ?)"
+
+        cur = con.cursor()
+        try:
+            cur.execute(query,  (category, ))
+        except sqlite3.IntegrityError:
+            return redirect('/?error=category+already+exists')
+        con.commit()
+        con.close()
+
+        return redirect("/")
+
+    error = request.args.get("error")
+    if error == None:
+        error = ""
+
+    return render_template("Home.html", logged_in=is_logged_in(), words=word_data, categories=categories(), is_student=is_student())
 
 
 @app.route('/categories/<category_id>', methods=['POST', 'GET'])
@@ -80,12 +122,13 @@ def categories_page(category_id):
                 return redirect('/?error=category+already+exists')
             con.commit()
             con.close()
+            return redirect(request.url)
 
         error = request.args.get("error")
         if error == None:
             error = ""
 
-    return render_template("categories.html", words=word_data, categories=categories(), category_id=int(category_id), logged_in=is_logged_in())
+    return render_template("categories.html", words=word_data, categories=categories(), category_id=int(category_id), logged_in=is_logged_in(), is_student=is_student())
 
 @app.route('/word/<word>', methods=['POST', 'GET'])
 def word_page(word):
@@ -99,7 +142,7 @@ def word_page(word):
     user_data = cur.fetchall()
 
     if request.method == "POST":
-        print(word)
+        # print(word)
         maori = request.form["Maori_word"].strip().lower()
         english = request.form["English_translation"].strip().lower()
         level = request.form["Level"]
@@ -108,8 +151,9 @@ def word_page(word):
         query = "UPDATE Dictionary SET Maori=?, English=?, Description=?, Level=?, Login_id=? WHERE id=?"
         cur.execute(query, (maori, english, description, level, login_id, int(word)))
         con.commit()
+        return redirect(request.url)
     con.close()
-    return render_template('word.html', words=word_data, word_id=int(word), logged_in=is_logged_in(), categories=categories(), user_data=user_data)
+    return render_template('word.html', words=word_data, word_id=int(word), logged_in=is_logged_in(), categories=categories(), user_data=user_data, is_student=is_student())
 
 
 @app.route('/confirm_word/<word>')
@@ -119,11 +163,11 @@ def confirm_word_page(word):
     cur = con.cursor()
     cur.execute(query)
     word_data = cur.fetchall()
-    return render_template('confirm_word.html', word_id=int(word), categories=categories(), words=word_data)
+    return render_template('confirm_word.html', word_id=int(word), categories=categories(), words=word_data, is_student=is_student())
 
 @app.route('/remove_word/<word>')
 def remove_word_page(word):
-    print(word)
+    # print(word)
     query = "DELETE FROM Dictionary WHERE id=?"
     con = create_connection(DATABASE)
     cur = con.cursor()
@@ -146,7 +190,7 @@ def login_page():
         cur.execute(query, (email, ))
         user_data = cur.fetchall()
         con.close()
-        print(user_data)
+        # print(user_data)
 
         try:
             login_id = user_data[0][0]
@@ -159,22 +203,23 @@ def login_page():
 
         session['login_id'] = login_id
         session['email'] = email
-        print(session)
+        # print(session)
         return redirect('/')
 
-    return render_template("Login.html", logged_in=is_logged_in(), categories=categories())
+    return render_template("Login.html", logged_in=is_logged_in(), categories=categories(), is_student=is_student())
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup_page():
     if is_logged_in():
         return redirect("/")
     if request.method == 'POST':
-        print(request.form)
+        # print(request.form)
         fname = request.form.get('fname').title().strip()
         lname = request.form.get('lname').title().strip()
         email = request.form.get('email').lower().strip()
         password = request.form.get('password')
         cpassword = request.form.get('cpassword')
+        admin = request.form.get('admin')
 
         if password != cpassword:
             return redirect("/signup?error=Passwords+dont+match")
@@ -185,11 +230,11 @@ def signup_page():
 
         con = create_connection(DATABASE)
 
-        query = "INSERT INTO Admin_logins (id, First_name, Last_name, Email, Password) VALUES(NULL, ?, ?, ?, ?)"
+        query = "INSERT INTO Admin_logins (id, First_name, Last_name, Email, Password, Admin) VALUES(NULL, ?, ?, ?, ?, ?)"
 
         cur = con.cursor()
         try:
-            cur.execute(query, (fname, lname, email, hashed_password))
+            cur.execute(query, (fname, lname, email, hashed_password, admin))
         except sqlite3.IntegrityError:
             return redirect('/signup?error=email+is+already+used')
         con.commit()
@@ -201,14 +246,14 @@ def signup_page():
     if error == None:
         error = ""
 
-    return render_template("Signup.html", error=error, logged_in=is_logged_in(), categories=categories())
+    return render_template("Signup.html", error=error, logged_in=is_logged_in(), categories=categories(), is_student=is_student())
 
 
 @app.route('/logout', methods=['POST', 'GET'])
 def logout_page():
-    print(list(session.keys()))
+    # print(list(session.keys()))
     [session.pop(key) for key in list(session.keys())]
-    print(list(session.keys()))
+    # print(list(session.keys()))
     return redirect('/?message=see+you+next+time!')
 
 
@@ -218,7 +263,7 @@ def add_category_page():
         return redirect('/')
     if request.method == 'POST':
         category = request.form.get('category').title().strip()
-        print(category)
+        # print(category)
         con = create_connection(DATABASE)
         query = "INSERT INTO Categories (id, Category_Name) VALUES(NULL, ?)"
 
@@ -235,12 +280,17 @@ def add_category_page():
     error = request.args.get("error")
     if error == None:
         error = ""
-    return render_template('add_category.html', categories=categories(), logged_in=is_logged_in())
+    return render_template('add_category.html', categories=categories(), logged_in=is_logged_in(), is_student=is_student())
 
 
 @app.route('/confirm/<category>')
 def confirm_page(category):
-    return render_template('confirm.html', category_id=int(category), categories=categories())
+    query = "SELECT category_id, Maori, English, Description, Level, image, id FROM Dictionary"
+    con = create_connection(DATABASE)
+    cur = con.cursor()
+    cur.execute(query)
+    word_data = cur.fetchall()
+    return render_template('confirm.html', category_id=int(category), categories=categories(), words=word_data, is_student=is_student())
 
 @app.route('/remove_category/<category>')
 def remove_category_page(category):
