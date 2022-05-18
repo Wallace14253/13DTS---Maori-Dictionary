@@ -6,7 +6,7 @@
 
 {% block main %}
     <h1>Welcome to Wallace's Maori - English Dictionary</h1>
-    {% if logged_in and not is_student %}
+    {% if logged_in and is_teacher %}
         <form class="dataForm" method="POST">
             <div class="form-group">
                 <div class="form-label">Category Name</div>

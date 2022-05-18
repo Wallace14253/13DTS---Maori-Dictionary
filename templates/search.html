@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Maōri Dictionary | Home{% endblock %}
+
+{% block heading %}Maōri - English Dictionary{% endblock %}
+
+{% block main %}
+    <h1>Welcome to Wallace's Maori - English Dictionary</h1>
+    <form class="dataForm">
+        <div class="form-group">
+            <input type="search" id="search" name="search">
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Search">
+        </div>
+    </form>
+    {% if searched %}
+    <table>
+        <thead>
+            <tr>
+                <td>Maori</td>
+                <td>English</td>
+                <td>Description</td>
+                <td>Level</td>
+                <td>Image</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for word in word_data %}
+                <tr>
+                    <td><a href="/word/{{ word[0] }}">{{ word[1] }}</a></td>
+                    <td>{{ word[2] }}</td>
+                    <td>{{ word[3] }}</td>
+                    <td>{{ word[4] }}</td>
+                    <td><img src="../static/images/{{ word[8] }}"></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+{% endblock %}
