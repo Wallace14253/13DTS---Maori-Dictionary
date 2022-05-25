@@ -8,13 +8,14 @@
     <h1>Welcome to Wallace's Maori - English Dictionary</h1>
     <form class="dataForm">
         <div class="form-group">
+            <label>Search</label>
             <input type="search" id="search" name="search">
         </div>
         <div class="form-group">
             <input type="submit" value="Search">
         </div>
     </form>
-    {% if searched %}
+    {% if searched and len(word_data) == 0%}
     <table>
         <thead>
             <tr>
@@ -37,5 +38,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p></p>
     {% endif %}
 {% endblock %}

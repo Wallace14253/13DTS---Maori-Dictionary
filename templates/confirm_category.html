@@ -23,13 +23,13 @@
         </thead>
         <tbody>
             {% for word in words %}
-                {% if word[0] == category_id %}
+                {% if word[7] == category_id %}
                 <tr>
-                    <td><a href="/word/{{ word[6] }}">{{ word[1] }}</a></td>
+                    <td><a href="/word/{{ word[0] }}">{{ word[1] }}</a></td>
                     <td>{{ word[2] }}</td>
                     <td>{{ word[3] }}</td>
                     <td>{{ word[4] }}</td>
-                    <td><img src="../static/images/{{ word[5] }}"></td>
+                    <td><img src="../static/images/{{ word[8] }}"></td>
                 </tr>
                 {% endif %}
             {% endfor %}

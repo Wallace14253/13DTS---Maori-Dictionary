@@ -26,17 +26,14 @@ def create_connection(db_file):
 # Create a function to check if the user is logged in
 def is_logged_in():
     if session.get("email") is None:
-        # print("not logged in")
         return False
     else:
-        # print("logged in")
         return True
 
 
 # Create a function to check if the user is a teacher
 def is_teacher():
     if session.get("login_id") is None:
-        print("no email")
         return False
     else:
         con = create_connection(DATABASE)
@@ -45,29 +42,25 @@ def is_teacher():
         query = "SELECT Admin FROM Admin_logins WHERE id = ?"
         cur.execute(query, (login_id,))
         admin = cur.fetchall()
-        print(admin[0][0])
         if admin[0][0] == "Teacher":
-            print("is teacher")
             return True
         else:
-            print("is student")
             return False
 
 
 def get_categories():
     con = create_connection(DATABASE)
     cur = con.cursor()
-    query = "SELECT id, Category_Name FROM Categories"
+    query = "SELECT id, Category_Name FROM Categories ORDER BY Category_Name"
 
     cur.execute(query)
     category = cur.fetchall()
     con.close()
-    # print(category)
     return category
 
 
 def get_words():
-    query = "SELECT * FROM Dictionary"
+    query = "SELECT * FROM Dictionary ORDER BY English"
     con = create_connection(DATABASE)
     cur = con.cursor()
     cur.execute(query)
@@ -77,16 +70,8 @@ def get_words():
 
 @app.route('/', methods=['GET', 'POST'])
 def home_page():
-    query = "SELECT id, Maori, English, Description, Level, image FROM Dictionary"
-    con = create_connection(DATABASE)
-    cur = con.cursor()
-    cur.execute(query)
-    word_data = cur.fetchall()
-    con.close()
-
     if request.method == 'POST':
         category = request.form.get('category').title().strip()
-        # print(category)
         con = create_connection(DATABASE)
         query = "INSERT INTO Categories (id, Category_Name) VALUES(NULL, ?)"
 
@@ -104,7 +89,7 @@ def home_page():
     if error == None:
         error = ""
 
-    return render_template("Home.html", logged_in=is_logged_in(), words=word_data, categories=get_categories(),
+    return render_template("Home.html", logged_in=is_logged_in(), categories=get_categories(),
                            is_teacher=is_teacher())
 
 
@@ -129,15 +114,8 @@ def search_page():
 
 @app.route('/categories/<category_id>', methods=['POST', 'GET'])
 def categories_page(category_id):
-    query = "SELECT category_id, Maori, English, Description, Level, image, id FROM Dictionary"
-    con = create_connection(DATABASE)
-    cur = con.cursor()
-    cur.execute(query)
-    word_data = cur.fetchall()
-
     if is_logged_in():
         if request.method == 'POST':
-            print(request.form)
             Maori = request.form.get('Maori_word').title().strip()
             English = request.form.get('English_translation').title().strip()
             Level = request.form.get('Level')
@@ -161,23 +139,19 @@ def categories_page(category_id):
         if error == None:
             error = ""
 
-    return render_template("categories.html", words=word_data, categories=get_categories(), category_id=int(category_id),
+    return render_template("categories.html", words=get_words(), categories=get_categories(), category_id=int(category_id),
                            logged_in=is_logged_in(), is_teacher=is_teacher())
 
 
 @app.route('/word/<word>', methods=['POST', 'GET'])
 def word_page(word):
-    query = "SELECT * FROM Dictionary"
     con = create_connection(DATABASE)
     cur = con.cursor()
-    cur.execute(query)
-    word_data = cur.fetchall()
     query = "SELECT id, First_name, Last_Name FROM Admin_Logins"
     cur.execute(query)
     user_data = cur.fetchall()
 
     if request.method == "POST":
-        # print(word)
         maori = request.form["Maori_word"].strip().lower()
         english = request.form["English_translation"].strip().lower()
         level = request.form["Level"]
@@ -188,24 +162,18 @@ def word_page(word):
         con.commit()
         return redirect(request.url)
     con.close()
-    return render_template('word.html', words=word_data, word_id=int(word), logged_in=is_logged_in(),
+    return render_template('word.html', words=get_words(), word_id=int(word), logged_in=is_logged_in(),
                            categories=get_categories(), user_data=user_data, is_teacher=is_teacher())
 
 
 @app.route('/confirm_word/<word>')
 def confirm_word_page(word):
-    query = "SELECT * FROM Dictionary"
-    con = create_connection(DATABASE)
-    cur = con.cursor()
-    cur.execute(query)
-    word_data = cur.fetchall()
-    return render_template('confirm_word.html', word_id=int(word), categories=get_categories(), words=word_data,
+    return render_template('confirm_word.html', word_id=int(word), categories=get_categories(), words=get_words(),
                            is_teacher=is_teacher())
 
 
 @app.route('/remove_word/<word>')
 def remove_word_page(word):
-    # print(word)
     query = "DELETE FROM Dictionary WHERE id=?"
     con = create_connection(DATABASE)
     cur = con.cursor()
@@ -229,7 +197,6 @@ def login_page():
         cur.execute(query, (email,))
         user_data = cur.fetchall()
         con.close()
-        # print(user_data)
 
         try:
             login_id = user_data[0][0]
@@ -238,14 +205,18 @@ def login_page():
             return redirect("/login?error=Email+or+password+incorrect")
 
         if not bcrypt.check_password_hash(db_password, password):
+            error = 'Email invalid or password incorrect'
             return redirect(request.referrer + "?error=Email+invalid+or+password+incorrect")
 
         session['login_id'] = login_id
         session['email'] = email
-        # print(session)
         return redirect('/')
 
-    return render_template("Login.html", logged_in=is_logged_in(), categories=get_categories(), is_teacher=is_teacher())
+    error = request.args.get("error")
+    if error == None:
+        error = ""
+
+    return render_template("Login.html", logged_in=is_logged_in(), categories=get_categories(), is_teacher=is_teacher(), error = error)
 
 
 @app.route('/signup', methods=['POST', 'GET'])
@@ -253,7 +224,6 @@ def signup_page():
     if is_logged_in():
         return redirect("/")
     if request.method == 'POST':
-        # print(request.form)
         fname = request.form.get('fname').title().strip()
         lname = request.form.get('lname').title().strip()
         email = request.form.get('email').lower().strip()
@@ -278,8 +248,9 @@ def signup_page():
         try:
             cur.execute(query, (fname, lname, email, hashed_password, admin))
         except sqlite3.IntegrityError:
-            return redirect('/signup?error=email+is+already+used')
             error = "Email is already in use"
+            return redirect('/signup?error=email+is+already+used')
+
         con.commit()
         con.close()
 
@@ -295,9 +266,7 @@ def signup_page():
 
 @app.route('/logout', methods=['POST', 'GET'])
 def logout_page():
-    # print(list(session.keys()))
     [session.pop(key) for key in list(session.keys())]
-    # print(list(session.keys()))
     return redirect('/?message=see+you+next+time!')
 
 
@@ -308,7 +277,6 @@ def add_category_page():
 
     if request.method == 'POST':
         category = request.form.get('category').title().strip()
-        # print(category)
         con = create_connection(DATABASE)
         query = "INSERT INTO Categories (id, Category_Name) VALUES(NULL, ?)"
 
@@ -328,12 +296,7 @@ def add_category_page():
 
 @app.route('/confirm/<category>')
 def confirm_page(category):
-    query = "SELECT category_id, Maori, English, Description, Level, image, id FROM Dictionary"
-    con = create_connection(DATABASE)
-    cur = con.cursor()
-    cur.execute(query)
-    word_data = cur.fetchall()
-    return render_template('confirm.html', category_id=int(category), categories=get_categories(), words=word_data,
+    return render_template('confirm_category.html', category_id=int(category), categories=get_categories(), words=get_words(),
                            is_teacher=is_teacher())
 
 
