@@ -9,13 +9,13 @@
     <form class="dataForm">
         <div class="form-group">
             <label>Search</label>
-            <input type="search" id="search" name="search">
+            <input type="search" id="search" name="search" required>
         </div>
         <div class="form-group">
             <input type="submit" value="Search">
         </div>
     </form>
-    {% if searched and word_data != [] %}
+    {% if searched and word_data != [] %} <!-- Check if the user searched and if the results aren't empty -->
     <table>
         <thead>
             <tr>
@@ -27,7 +27,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for word in word_data %}
+            {% for word in word_data %} <!-- Loop through all the results of the search -->
                 <tr>
                     <td><a href="/word/{{ word[0] }}">{{ word[1] }}</a></td>
                     <td>{{ word[2] }}</td>
@@ -38,7 +38,7 @@
             {% endfor %}
         </tbody>
     </table>
-    {% elif searched and word_data == [] %}
+    {% elif searched and word_data == [] %} <!-- Check if the user searched and if the search is empty -->
         <p>Word not found</p>
     {% endif %}
 {% endblock %}

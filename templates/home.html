@@ -6,11 +6,12 @@
 
 {% block main %}
     <h1>Welcome to Wallace's Maori - English Dictionary</h1>
-    {% if logged_in and is_teacher %}
+    <p>{{ message }}</p>
+    {% if logged_in and is_teacher %} <!-- Check if the user is logged in and a teacher -->
         <form class="dataForm" method="POST">
             <div class="form-group">
                 <div class="form-label">Add Category</div>
-                <div class="form-element"><input type="text" name="category" id="category" required></div>
+                <div class="form-element"><input type="text" name="category" id="category" required maxlength="30"></div>
             </div>
             <div class="form-group">
                 <div class="form-label"></div>

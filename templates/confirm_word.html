@@ -5,10 +5,32 @@
 {% block heading %}Delete Word{% endblock %}
 
 {% block main %}
-    {% for word in words %}
+    {% for word in words %} <!-- Go through all the words and find the one that the user is trying to delete -->
         {% if word[0] == word_id %}
             <p>Are you sure you want to delete {{ word[1] }} - <a href="/remove_word/{{ word_id }}">Yes</a>/<a href="/word/{{ word_id }}">No</a></p>
+            <table>
+                <tr>
+                    <td class="left-table"><p><strong>Definition:</strong></p></td>
+                    <td>{{ word[3] }}</td>
+                </tr>
+                <tr>
+                    <td class="left-table"><p><strong>Level:</strong></p></td>
+                    <td>{{ word[4] }}</td>
+                </tr>
+                <tr>
+                    <td class="left-table"><p><strong>Date Added:</strong></p></td>
+                    <td>{{ word[5] }}</td>
+                </tr>
+                <tr>
+                    {% for user in user_data %} <!-- Go through all the users and find the one that last edited this word -->
+                        {% if user[0] == word[6] %}
+                           <td class="left-table"><p><strong>Last Edited By:</strong></p></td>
+                            <td>{{ user[1] }} {{ user[2] }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </table>
+            <img src="../static/images/{{ word[8] }}">
         {% endif %}
     {% endfor %}
-
 {% endblock %}

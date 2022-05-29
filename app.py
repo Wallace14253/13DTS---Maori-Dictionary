@@ -84,15 +84,17 @@ def home_page():
         cur = con.cursor()
         # Check if the category already exists
         try:
-            cur.execute(query, (category, ))
+            cur.execute(query, (category,))
         except sqlite3.IntegrityError:
             # If the category already exists return them to the home page with an error
             return redirect('/?error=category+already+exists')
         con.commit()
         con.close()
-        # If the category is successfully added then return them to the home page
-        return redirect("/")
-
+    # Check to see if there is a message
+    message = request.args.get("message")
+    # If there is no message set message to an empty string
+    if message == None:
+        message = ""
     # Check to see if there was an error
     error = request.args.get("error")
     # If there is no error set error to an empty string
@@ -101,7 +103,7 @@ def home_page():
 
     # Render the home page
     return render_template("Home.html", logged_in=is_logged_in(), categories=get_categories(),
-                           is_teacher=is_teacher(), error=error)
+                           is_teacher=is_teacher(), error=error, message=message)
 
 
 # The search page
@@ -127,7 +129,8 @@ def search_page():
     word_data = cur.fetchall()
 
     # Render the search page
-    return render_template('search.html', categories=get_categories(), word_data=word_data, searched=searched)
+    return render_template('search.html', categories=get_categories(), word_data=word_data, searched=searched,
+                           logged_in=is_logged_in())
 
 
 # The category page
@@ -136,8 +139,12 @@ def categories_page(category_id):
     # Get all the categories and store them in the variable categories
     categories = get_categories()
     # Check if the category they are looking for is in the database
+    try:
+        category_id = int(category_id)
+    except:
+        return redirect('/')
     for category in categories:
-        if category[0] == int(category_id):
+        if category[0] == category_id:
             # If the category is found, make the page_found variable true
             page_found = True
             break
@@ -154,7 +161,7 @@ def categories_page(category_id):
             English = request.form.get('English_translation').title().strip()
             Level = request.form.get('Level')
             Description = request.form.get('Description')
-            Date_Added = datetime.now()
+            Date_Added = datetime.now().strftime('%d-%m-%y')
             login_id = session["login_id"]
             image = 'noimage.png'
 
@@ -165,8 +172,6 @@ def categories_page(category_id):
             cur.execute(query, (Maori, English, Description, Level, Date_Added, login_id, category_id, image))
             con.commit()
             con.close()
-            # After adding the word to the database, redirect them back to the page so that it reloads
-            return redirect(request.url)
     # Render the category page
     return render_template("categories.html", words=get_words(), categories=categories, category_id=int(category_id),
                            logged_in=is_logged_in(), is_teacher=is_teacher(), page_found=page_found)
@@ -178,6 +183,10 @@ def word_page(word_id):
     # Get all the words and store them in the variable words
     words = get_words()
     # Check if the category they are looking for is in the database
+    try:
+        int(word_id)
+    except:
+        return redirect('/')
     for word in words:
         if word[0] == int(word_id):
             # If the category is found, make the page_found variable true
@@ -204,20 +213,21 @@ def word_page(word_id):
         login_id = session['login_id']
         # Update the word in the database with the new information from the form
         query = "UPDATE Dictionary SET Maori=?, English=?, Description=?, Level=?, Login_id=? WHERE id=?"
-        cur.execute(query, (maori, english, description, level, login_id, int(word)))
+        cur.execute(query, (maori, english, description, level, login_id, int(word_id)))
         con.commit()
-        # After updating the word, redirect them back to the page so that it reloads
-        return redirect(request.url)
     con.close()
     # Render the word page
-    return render_template('word.html', words=words, word_id=int(word_id), logged_in=is_logged_in(),
-                           categories=get_categories(), user_data=user_data, is_teacher=is_teacher(), page_found=page_found)
+    return render_template('word.html', words=get_words(), word_id=int(word_id), logged_in=is_logged_in(),
+                           categories=get_categories(), user_data=user_data, is_teacher=is_teacher(),
+                           page_found=page_found)
+
 
 # The page for confirmation that the user wants to delete the word from the database
 @app.route('/confirm_word/<word>')
 def confirm_word_page(word):
     return render_template('confirm_word.html', word_id=int(word), categories=get_categories(), words=get_words(),
                            is_teacher=is_teacher())
+
 
 # Removing the word from the database
 @app.route('/remove_word/<word>')
@@ -229,7 +239,8 @@ def remove_word_page(word):
     con.commit()
     con.close()
     # Redirect them to the home page after deleting the word
-    return redirect('/')
+    return redirect('/?message=Word+deleted+successfully')
+
 
 # The login page
 @app.route('/login', methods=['POST', 'GET'])
@@ -260,12 +271,12 @@ def login_page():
         # Check if the password that the user entered matches the one in the database
         if not bcrypt.check_password_hash(db_password, password):
             # If the passwords don't match redirect them to the login page with an error message
-            return redirect(request.referrer + "?error=Email+invalid+or+password+incorrect")
+            return redirect("/login?error=Email+invalid+or+password+incorrect")
         # Create a session of their id and email
         session['login_id'] = login_id
         session['email'] = email
         # After successfully logging in, redirect them to the home page
-        return redirect('/')
+        return redirect('/?message=Successfully+logged+in')
 
     # Check to see if there was an error
     error = request.args.get("error")
@@ -273,7 +284,9 @@ def login_page():
     if error == None:
         error = ""
     # Render the login page
-    return render_template("Login.html", logged_in=is_logged_in(), categories=get_categories(), is_teacher=is_teacher(), error = error)
+    return render_template("Login.html", logged_in=is_logged_in(), categories=get_categories(), is_teacher=is_teacher(),
+                           error=error)
+
 
 # The signup page
 @app.route('/signup', methods=['POST', 'GET'])
@@ -327,6 +340,7 @@ def signup_page():
     return render_template("Signup.html", error=error, logged_in=is_logged_in(), categories=get_categories(),
                            is_teacher=is_teacher())
 
+
 # Log the user out by deleting the sessions
 @app.route('/logout', methods=['POST', 'GET'])
 def logout_page():
@@ -334,25 +348,27 @@ def logout_page():
     # Redirect them to the home page after logging them out
     return redirect('/?message=see+you+next+time!')
 
+
 # The page for confirmation that the user wants to delete the category from the database
 @app.route('/confirm/<category>')
 def confirm_page(category):
-    return render_template('confirm_category.html', category_id=int(category), categories=get_categories(), words=get_words(),
+    return render_template('confirm_category.html', category_id=int(category), categories=get_categories(),
+                           words=get_words(),
                            is_teacher=is_teacher())
+
 
 # Removing the category from the database
 @app.route('/remove_category/<category>')
 def remove_category_page(category):
-    query = "DELETE FROM Dictionary WHERE Category_id=?"
+    query = "DELETE FROM categories WHERE id=?"
     con = create_connection(DATABASE)
     cur = con.cursor()
-    cur.execute(query, (category,))
-    query = "DELETE FROM categories WHERE id=?"
     cur.execute(query, (category,))
     con.commit()
     con.close()
     # Redirect them to the home page after deleting the category
-    return redirect('/')
+    return redirect('/?message=Category+deleted+successfully')
+
 
 # Run the code
 if __name__ == '__main__':

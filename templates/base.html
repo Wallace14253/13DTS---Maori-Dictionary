@@ -25,7 +25,7 @@
                 <li><a href="\">Home</a></li>
                 <li><a href="/search">Search</a></li>
                 <li><p>-----------</p></li>
-                {% for category in categories %}
+                {% for category in categories %} <!-- Put all the categories into the list -->
                 <li><a href="/categories/{{ category[0] }}">{{category[1]}}</a></li>
                 {% endfor %}
                 <li><p>-----------</p></li>

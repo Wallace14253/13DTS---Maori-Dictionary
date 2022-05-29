@@ -3,8 +3,8 @@
 {% block heading %}Maōri - English Dictionary{% endblock %}
 
 {% block main %}
-    {% if page_found %}
-        {% for word in words %}
+    {% if page_found %} <!-- Check if the word exists -->
+        {% for word in words %} <!-- Go through all the words and find the word that is being displayed -->
                 {% if word[0] == word_id %}
                     {% if logged_in and is_teacher %}
                         <h1>{{ word[1] }}({{ word[2] }}) - <a href="/confirm_word/{{ word_id }}">Remove</a></h1>
@@ -34,16 +34,16 @@
                         </tr>
                     </table>
                     <img src="../static/images/{{ word[8] }}">
-                    {% if logged_in and is_teacher %}
+                    {% if logged_in and is_teacher %} <!-- Check if the user is logged in and a teacher -->
                         <form class="dataForm" method="POST">
                             <div><p>Edit Word</p></div>
                             <div class="form-group">
                                 <div class="form-label">Maori Word</div>
-                                <div class="form-element"><input type="text" name="Maori_word" id="Maori_word" value="{{ word[1] }}" required></div>
+                                <div class="form-element"><input type="text" name="Maori_word" id="Maori_word" value="{{ word[1] }}" required maxlength="20"></div>
                             </div>
                             <div class="form-group">
                                 <div class="form-label">English Translation</div>
-                                <div class="form-element"><input type="text" name="English_translation" id="English_translation", value="{{ word[2] }}" required></div>
+                                <div class="form-element"><input type="text" name="English_translation" id="English_translation", value="{{ word[2] }}" required maxlength="20"></div>
                             </div>
                             <div class="form-group">
                                 <div class="form-label">Year Level</div>
@@ -58,7 +58,7 @@
                             </div>
                             <div class="form-group">
                                 <div class="form-label">Definition</div>
-                                <div class="form-element"><textarea name="Description" required>{{ word[3] }}</textarea></div>
+                                <div class="form-element"><textarea name="Description" required maxlength="100">{{ word[3] }}</textarea></div>
                             </div>
                             <div class="form-group">
                                 <div class="form-element"><input type="submit" value="Add Changes"></div>
