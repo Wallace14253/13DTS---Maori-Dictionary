@@ -119,7 +119,7 @@ def search_page():
     else:
         # I the search isn't empty add a % wildcard to the end of the string for sql
         # and set searched to true
-        search = search + "%"
+        search = "%" + search + "%"
         searched = True
     # Select all the words that match the search and store it in the word_data variable
     query = "SELECT * FROM Dictionary WHERE English LIKE ? OR Maori LIKE ?"
