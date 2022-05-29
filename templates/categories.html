@@ -1,67 +1,74 @@
 {% extends "base.html" %}
 
 {% block heading %}
-    {% for category in categories %}
-        {% if category[0] == category_id %}
-            {{ category[1] }}
-        {% endif %}
-    {% endfor %}
+    {% if page_found %}
+        {% for category in categories %}
+            {% if category[0] == category_id %}
+                {{ category[1] }}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        Page not found
+    {% endif %}
 {% endblock %}
 
 {% block main %}
-    {% if logged_in and is_teacher %}
-    <a href="/confirm/{{ category_id }}">Remove Category</a>
-    {% endif %}
-    <table>
-        <thead>
-            <tr>
-                <td>Maori</td>
-                <td>English</td>
-                <td>Description</td>
-                <td>Level</td>
-                <td>Image</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for word in words %}
-                {% if word[7] == category_id %}
+    {% if page_found %}
+        {% if logged_in and is_teacher %}
+        <a href="/confirm/{{ category_id }}">Remove Category</a>
+        {% endif %}
+        <table>
+            <thead>
                 <tr>
-                    <td><a href="/word/{{ word[0] }}">{{ word[1] }}</a></td>
-                    <td>{{ word[2] }}</td>
-                    <td>{{ word[3] }}</td>
-                    <td>{{ word[4] }}</td>
-                    <td><img src="../static/images/{{ word[8] }}"></td>
+                    <td>Maori</td>
+                    <td>English</td>
+                    <td>Description</td>
+                    <td>Level</td>
+                    <td>Image</td>
                 </tr>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-{% if logged_in and is_teacher %}
-    <form class="dataForm" method="POST">
-    <div><p>Add a word</p></div>
-    <div class="form-group">
-        <div class="form-label">Maori Word</div>
-        <div class="form-element"><input type="text" name="Maori_word" id="Maori_word" required></div>
-    </div>
-    <div class="form-group">
-        <div class="form-label">English Translation</div>
-        <div class="form-element"><input type="text" name="English_translation" id="English_translation" required></div>
-    </div>
-    <div class="form-group">
-        <div class="form-label">Year Level</div>
-            {% for i in range(10) %}
-                <input type="radio" id="{{ i + 1 }}" name="Level" value="{{ i + 1 }}" required>
-                <label for="{{ i + 1 }}">{{ i + 1 }}</label>
-            {% endfor %}
-    </div>
-    <div class="form-group">
-        <div class="form-label">Description</div>
-        <div class="form-element"><textarea name="Description" required></textarea></div>
-    </div>
-    <div class="form-group">
-        <div class="form-element"><input type="submit" value="Add Word"></div>
-    </div>
-    </form>
+            </thead>
+            <tbody>
+                {% for word in words %}
+                    {% if word[7] == category_id %}
+                    <tr>
+                        <td><a href="/word/{{ word[0] }}">{{ word[1] }}</a></td>
+                        <td>{{ word[2] }}</td>
+                        <td>{{ word[3] }}</td>
+                        <td>{{ word[4] }}</td>
+                        <td><img src="../static/images/{{ word[8] }}"></td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% if logged_in and is_teacher %}
+        <form class="dataForm" method="POST">
+        <div><p>Add a word</p></div>
+        <div class="form-group">
+            <div class="form-label">Maori Word</div>
+            <div class="form-element"><input type="text" name="Maori_word" id="Maori_word" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">English Translation</div>
+            <div class="form-element"><input type="text" name="English_translation" id="English_translation" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Year Level</div>
+                {% for i in range(10) %}
+                    <input type="radio" id="{{ i + 1 }}" name="Level" value="{{ i + 1 }}" required>
+                    <label for="{{ i + 1 }}">{{ i + 1 }}</label>
+                {% endfor %}
+        </div>
+        <div class="form-group">
+            <div class="form-label">Description</div>
+            <div class="form-element"><textarea name="Description" required></textarea></div>
+        </div>
+        <div class="form-group">
+            <div class="form-element"><input type="submit" value="Add Word"></div>
+        </div>
+        </form>
+        {% endif %}
+    {% else %}
+        <p>Page not found</p>
     {% endif %}
-
 {% endblock %}

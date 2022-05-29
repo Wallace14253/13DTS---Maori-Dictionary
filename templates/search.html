@@ -15,7 +15,7 @@
             <input type="submit" value="Search">
         </div>
     </form>
-    {% if searched and len(word_data) == 0%}
+    {% if searched and word_data != [] %}
     <table>
         <thead>
             <tr>
@@ -38,7 +38,7 @@
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-        <p></p>
+    {% elif searched and word_data == [] %}
+        <p>Word not found</p>
     {% endif %}
 {% endblock %}
